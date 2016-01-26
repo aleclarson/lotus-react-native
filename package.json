@@ -1,0 +1,12 @@
+{
+  "name": "lotus-react-packager",
+  "description": "",
+  "version": "0.0.1",
+  "main": "./js/src/index",
+  "dependencies": {
+    "in-array": "^0.1.0",
+    "lotus-log": "aleclarson/lotus-log#1.0.0",
+    "lotus-require": "aleclarson/lotus-require#1.0.0",
+    "request": "^2.58.0"
+  }
+}
