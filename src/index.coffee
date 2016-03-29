@@ -1,38 +1,37 @@
 
-lotus = require "lotus-require"
-
-{ relative, join } = require "path"
-{ sync } = require "io"
-
-ip = require "ip"
-log = require "lotus-log"
-request = require "request"
 inArray = require "in-array"
+request = require "request"
+Path = require "path"
+ip = require "ip"
 
-module.exports = ->
+exports.initCommands = ->
+  lotus.Module._plugins["lotus-react-packager"] = exports
 
-  onFileEvent = (file, event) ->
-    event = "delete" if event is "unlink"
-    url = "http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event
-    request url, (error) ->
-      return unless error?
-      log
-        .moat 1
-        .red "Error: "
-        .white error.message
-        .moat 1
+exports.initModule = (module, options) ->
 
-  Module._plugins["reactPackager"] = (module, options) ->
+  patterns = options.patterns or [
+    "*.js"
+    "js/src/**/*.js"
+  ]
 
-    patterns = [
-      "*.js"
-      "js/src/**/*.js"
-    ]
+  include = sync.map patterns, (pattern) ->
+    Path.join module.path, pattern
 
-    sync.each patterns, (pattern) ->
-      module.watch pattern
+  lotus.Module.watch { include }, @didFileChange
 
-    include = sync.map patterns, (pattern) ->
-      join module.path, pattern
+  Q.all sync.map patterns, (pattern) ->
+    module.watch pattern
 
-    Module.watch { include }, onFileEvent
+exports.didFileChange = (file, event) ->
+  event = "delete" if event is "unlink"
+  url = "http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event
+  request url, (error) ->
+    return unless error?
+    log.moat 1
+    log.red "Plugin Error: "
+    log.gray.dim "{ plugin: "
+    log.yellow "lotus-react-packager"
+    log.gray.dim " }"
+    log.moat 0
+    log.white error.message
+    log.moat 1
