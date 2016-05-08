@@ -1,57 +1,58 @@
-var Path, didFileChange, ip, request, syncFs;
+var Path, ignoredEvents, ip, notifyPackager, request, sync, syncFs;
 
 request = require("request");
 
 syncFs = require("io/sync");
 
+sync = require("sync");
+
 Path = require("path");
 
 ip = require("ip");
 
-module.exports = function(module, options) {
-  var buildDir, patterns, watchOptions;
-  patterns = ["*.js"];
-  buildDir = "js/src";
-  if (!syncFs.isDir(module.path + "/" + buildDir)) {
-    buildDir = null;
-  }
-  if (!buildDir) {
-    buildDir = "src";
-    if (!syncFs.isDir(module.path + "/" + buildDir)) {
-      buildDir = null;
+module.exports = function(mod) {
+  return mod.load(["config"]).then(function() {
+    var patterns;
+    if (!mod.dest) {
+      log.moat(1);
+      log.yellow("Warning: ");
+      log.white(mod.name);
+      log.moat(0);
+      log.gray.dim("A valid 'dest' must exist before 'lotus-react-packager' can work!");
+      log.moat(1);
+      return;
     }
-  }
-  if (buildDir) {
-    patterns.push(buildDir + "/**/*.js");
-  }
-  watchOptions = {
-    include: sync.map(patterns, function(pattern) {
-      return Path.join(module.path, pattern);
-    })
-  };
-  lotus.Module.watch(watchOptions, didFileChange);
-  return Q.all(sync.map(patterns, function(pattern) {
-    return module.crawl(pattern);
-  }));
+    patterns = [];
+    patterns[0] = "*.js";
+    patterns[1] = mod.dest + "/**/*.js";
+    return mod.watch(patterns, notifyPackager);
+  });
 };
 
-didFileChange = function(file, event) {
+ignoredEvents = {
+  ready: true
+};
+
+notifyPackager = function(event, file) {
   var url;
+  assertType(event, String);
+  if (ignoredEvents[event]) {
+    return;
+  }
   if (event === "unlink") {
     event = "delete";
   }
+  assertType(file, lotus.File);
   url = "http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event;
   return request(url, function(error) {
-    if (error == null) {
+    if (!error) {
       return;
     }
     log.moat(1);
-    log.red("Plugin Error: ");
-    log.gray.dim("{ plugin: ");
-    log.yellow("lotus-react-packager");
-    log.gray.dim(" }");
+    log.red("Plugin error: ");
+    log.white("lotus-react-packager");
     log.moat(0);
-    log.white(error.message);
+    log.gray.dim(error.message);
     return log.moat(1);
   });
 };

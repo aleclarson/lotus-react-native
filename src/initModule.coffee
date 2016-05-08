@@ -1,44 +1,48 @@
 
 request = require "request"
 syncFs = require "io/sync"
+sync = require "sync"
 Path = require "path"
 ip = require "ip"
 
-module.exports = (module, options) ->
+module.exports = (mod) ->
 
-  patterns = [ "*.js" ]
+  mod.load [ "config" ]
 
-  buildDir = "js/src"
-  buildDir = null unless syncFs.isDir module.path + "/" + buildDir
+  .then ->
 
-  unless buildDir
-    buildDir = "src"
-    buildDir = null unless syncFs.isDir module.path + "/" + buildDir
+    unless mod.dest
+      log.moat 1
+      log.yellow "Warning: "
+      log.white mod.name
+      log.moat 0
+      log.gray.dim "A valid 'dest' must exist before 'lotus-react-packager' can work!"
+      log.moat 1
+      return
 
-  if buildDir
-    patterns.push buildDir + "/**/*.js"
+    patterns = []
+    patterns[0] = "*.js"
+    patterns[1] = mod.dest + "/**/*.js"
 
-  watchOptions =
-    include: sync.map patterns, (pattern) ->
-      Path.join module.path, pattern
+    mod.watch patterns, notifyPackager
 
-  # Watch the module for source file events.
-  lotus.Module.watch watchOptions, didFileChange
+ignoredEvents = { ready: yes }
 
-  # Crawl the module for its source files.
-  Q.all sync.map patterns, (pattern) ->
-    module.crawl pattern
+notifyPackager = (event, file) ->
 
-didFileChange = (file, event) ->
+  assertType event, String
+  return if ignoredEvents[event]
   event = "delete" if event is "unlink"
+
+  assertType file, lotus.File
+
   url = "http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event
+
   request url, (error) ->
-    return unless error?
+    return unless error
     log.moat 1
-    log.red "Plugin Error: "
-    log.gray.dim "{ plugin: "
-    log.yellow "lotus-react-packager"
-    log.gray.dim " }"
+    log.red "Plugin error: "
+    log.white "lotus-react-packager"
     log.moat 0
-    log.white error.message
+    log.gray.dim error.message
     log.moat 1

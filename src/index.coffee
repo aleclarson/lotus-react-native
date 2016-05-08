@@ -1,6 +1,12 @@
 
-module.exports = (commands, injectPlugin) ->
+exports.globalDependencies = [
+  "lotus-watch"
+]
 
-  @injectPlugin "lotus-react-packager"
+exports.initModuleType = ->
+  return (type) ->
+    type.didBuild (Module) ->
+      Module._plugins.push "lotus-react-packager"
 
-  initModule: -> require "./initModule"
+exports.initModule = ->
+  require "./initModule"
