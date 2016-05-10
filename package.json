@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "main": "js/src/index",
   "dependencies": {
-    "in-array": "^0.1.0",
+    "in-array": "aleclarson/in-array#1.0.0",
     "ip": "^1.1.0",
-    "lotus-log": "aleclarson/lotus-log#1.0.0",
-    "lotus-require": "aleclarson/lotus-require#1.0.0",
+    "log": "aleclarson/log#1.0.0",
     "request": "^2.58.0"
   },
   "lotus": {
