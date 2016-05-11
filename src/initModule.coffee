@@ -11,18 +11,9 @@ module.exports = (mod) ->
 
   .then ->
 
-    unless mod.dest
-      log.moat 1
-      log.yellow "Warning: "
-      log.white mod.name
-      log.moat 0
-      log.gray.dim "A valid 'dest' must exist before 'lotus-react-packager' can work!"
-      log.moat 1
-      return
-
     patterns = []
     patterns[0] = "*.js"
-    patterns[1] = mod.dest + "/**/*.js"
+    patterns[1] = mod.dest + "/**/*.js" if mod.dest
 
     mod.watch patterns, notifyPackager
 

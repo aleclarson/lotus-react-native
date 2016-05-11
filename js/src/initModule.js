@@ -13,18 +13,11 @@ ip = require("ip");
 module.exports = function(mod) {
   return mod.load(["config"]).then(function() {
     var patterns;
-    if (!mod.dest) {
-      log.moat(1);
-      log.yellow("Warning: ");
-      log.white(mod.name);
-      log.moat(0);
-      log.gray.dim("A valid 'dest' must exist before 'lotus-react-packager' can work!");
-      log.moat(1);
-      return;
-    }
     patterns = [];
     patterns[0] = "*.js";
-    patterns[1] = mod.dest + "/**/*.js";
+    if (mod.dest) {
+      patterns[1] = mod.dest + "/**/*.js";
+    }
     return mod.watch(patterns, notifyPackager);
   });
 };
