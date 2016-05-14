@@ -1,4 +1,6 @@
-var Path, ignoredEvents, ip, notifyPackager, request, sync, syncFs;
+var Path, assertType, ignoredEvents, ip, notifyPackager, request, sync, syncFs;
+
+assertType = require("assertType");
 
 request = require("request");
 

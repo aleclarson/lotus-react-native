@@ -1,4 +1,5 @@
 
+assertType = require "assertType"
 request = require "request"
 syncFs = require "io/sync"
 sync = require "sync"
