@@ -4,6 +4,7 @@ request = require "request"
 syncFs = require "io/sync"
 sync = require "sync"
 Path = require "path"
+log = require "log"
 ip = require "ip"
 
 module.exports = (mod) ->
