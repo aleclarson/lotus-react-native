@@ -1,9 +1,7 @@
 
+{ fetch } = require "fetch"
+
 assertType = require "assertType"
-request = require "request"
-syncFs = require "io/sync"
-sync = require "sync"
-Path = require "path"
 log = require "log"
 ip = require "ip"
 
@@ -28,14 +26,4 @@ notifyPackager = (event, file) ->
   event = "delete" if event is "unlink"
 
   assertType file, lotus.File
-
-  url = "http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event
-
-  request url, (error) ->
-    return unless error
-    log.moat 1
-    log.red "Plugin error: "
-    log.white "lotus-react-packager"
-    log.moat 0
-    log.gray.dim error.message
-    log.moat 1
+  fetch "http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event
