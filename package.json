@@ -4,11 +4,9 @@
   "main": "js/src/index",
   "dependencies": {
     "assertType": "aleclarson/assertType#1.0.0",
-    "io": "aleclarson/io#1.0.0",
+    "fetch": "aleclarson/fetch#1.0.0",
     "ip": "^1.1.0",
-    "log": "aleclarson/log#1.0.0",
-    "request": "^2.58.0",
-    "sync": "aleclarson/sync#1.0.0"
+    "log": "aleclarson/log#1.0.0"
   },
   "lotus": {
     "plugins": [
