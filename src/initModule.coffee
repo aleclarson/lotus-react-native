@@ -1,6 +1,7 @@
 
 { fetch } = require "fetch"
 
+emptyFunction = require "emptyFunction"
 assertType = require "assertType"
 log = require "log"
 ip = require "ip"
@@ -27,3 +28,4 @@ notifyPackager = (event, file) ->
 
   assertType file, lotus.File
   fetch "http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event
+  .fail emptyFunction

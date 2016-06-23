@@ -1,6 +1,8 @@
-var assertType, fetch, ignoredEvents, ip, log, notifyPackager;
+var assertType, emptyFunction, fetch, ignoredEvents, ip, log, notifyPackager;
 
 fetch = require("fetch").fetch;
+
+emptyFunction = require("emptyFunction");
 
 assertType = require("assertType");
 
@@ -33,7 +35,7 @@ notifyPackager = function(event, file) {
     event = "delete";
   }
   assertType(file, lotus.File);
-  return fetch("http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event);
+  return fetch("http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event).fail(emptyFunction);
 };
 
 //# sourceMappingURL=../../map/src/initModule.map
