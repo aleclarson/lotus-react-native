@@ -1,8 +1,6 @@
-var assertType, emptyFunction, fetch, ignoredEvents, ip, log, notifyPackager;
+var assertType, fetch, ignoredEvents, ip, log, notifyPackager;
 
 fetch = require("fetch").fetch;
-
-emptyFunction = require("emptyFunction");
 
 assertType = require("assertType");
 
@@ -23,10 +21,11 @@ module.exports = function(mod) {
 };
 
 ignoredEvents = {
-  ready: true
+  "ready": "ready"
 };
 
 notifyPackager = function(event, file) {
+  var url;
   assertType(event, String);
   if (ignoredEvents[event]) {
     return;
@@ -35,7 +34,20 @@ notifyPackager = function(event, file) {
     event = "delete";
   }
   assertType(file, lotus.File);
-  return fetch("http://" + ip.address() + ":8081/watcher" + file.path + "?force=true&event=" + event).fail(emptyFunction);
+  url = "http://" + ip.address() + ":8081/watcher";
+  url += file.path;
+  url += "?force=true&event=" + event;
+  return fetch(url).fail(function(error) {
+    if (/Network request failed/.test(error.message)) {
+      return;
+    }
+    log.moat(1);
+    log.gray("lotus-react-packager");
+    log.moat(0);
+    log.red("Error: ");
+    log.white(error.message);
+    return log.moat(1);
+  });
 };
 
-//# sourceMappingURL=../../map/src/initModule.map
+//# sourceMappingURL=map/initModule.map
